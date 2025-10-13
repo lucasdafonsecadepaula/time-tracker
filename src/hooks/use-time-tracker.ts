@@ -3,7 +3,7 @@
 import type { Activity, DailyTodo, DailyTodoCompletion, Session } from "@/types/activity"
 import { useEffect, useRef, useState } from "react"
 
-const DEFAULT_ACTIVITIES = ["Doing Nothing", "Working", "Studying"]
+const DEFAULT_ACTIVITIES: string[] = []
 
 export function useTimeTracker() {
   const [activities, setActivities] = useState<Activity[]>([])
