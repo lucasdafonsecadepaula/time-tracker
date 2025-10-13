@@ -6,6 +6,7 @@ import { Clock } from "@/components/clock"
 import { DailySummary } from "@/components/daily-summary"
 import { DailyTodos } from "@/components/daily-todos"
 import { SessionHistory } from "@/components/session-history"
+import { ThemeToggle } from "@/components/theme-toggle"
 import { useTimeTracker } from "@/hooks/use-time-tracker"
 
 export default function TimeTrackerPage() {
@@ -17,6 +18,7 @@ export default function TimeTrackerPage() {
     todoCompletions,
     addActivity,
     startActivity,
+    stopActivity,
     addDailyTodo,
     toggleTodoCompletion,
     getTodoCompletion,
@@ -25,6 +27,10 @@ export default function TimeTrackerPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/10">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="flex justify-end mb-4">
+          <ThemeToggle />
+        </div>
+
         <div className="space-y-8">
           <div className="text-center space-y-3">
             <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
