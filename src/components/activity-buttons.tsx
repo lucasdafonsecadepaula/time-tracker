@@ -1,8 +1,8 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
-import type { Activity } from "@/types/activity"
 import { Clock, Play, Square } from "lucide-react"
+import { Activity } from "../types/activity"
 
 interface ActivityButtonsProps {
   activities: Activity[]

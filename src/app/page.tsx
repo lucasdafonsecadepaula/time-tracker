@@ -1,13 +1,26 @@
 "use client"
-import { Clock } from "@/components/clock"
 import { ActivityButtons } from "@/components/activity-buttons"
 import { AddActivity } from "@/components/add-activity"
-import { SessionHistory } from "@/components/session-history"
+import { AddDailyTodo } from "@/components/add-daily-todo"
+import { Clock } from "@/components/clock"
 import { DailySummary } from "@/components/daily-summary"
+import { DailyTodos } from "@/components/daily-todos"
+import { SessionHistory } from "@/components/session-history"
 import { useTimeTracker } from "@/hooks/use-time-tracker"
 
 export default function TimeTrackerPage() {
-  const { activities, activeActivity, sessionHistory, addActivity, startActivity, stopActivity } = useTimeTracker()
+  const {
+    activities,
+    activeActivity,
+    sessionHistory,
+    dailyTodos,
+    todoCompletions,
+    addActivity,
+    startActivity,
+    addDailyTodo,
+    toggleTodoCompletion,
+    getTodoCompletion,
+  } = useTimeTracker()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/10">
@@ -31,6 +44,15 @@ export default function TimeTrackerPage() {
 
           {/* Add Custom Activity */}
           <AddActivity onAddActivity={addActivity} />
+
+          <DailyTodos
+            todos={dailyTodos}
+            completions={todoCompletions}
+            onToggle={toggleTodoCompletion}
+            getTodoCompletion={getTodoCompletion}
+          />
+
+          <AddDailyTodo onAddTodo={addDailyTodo} />
 
           {/* Daily Summary */}
           <DailySummary activities={activities} />

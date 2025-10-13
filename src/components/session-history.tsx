@@ -3,7 +3,7 @@
 import { Card } from "@/components/ui/card"
 import { Calendar, ChevronDown, ChevronRight, Clock } from "lucide-react"
 import { useState } from "react"
-import { Session } from "../../types/activity"
+import { Session } from "../types/activity"
 
 interface SessionHistoryProps {
   history: Session[]

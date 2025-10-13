@@ -1,7 +1,7 @@
 "use client"
 
+import type { Activity, DailyTodo, DailyTodoCompletion, Session } from "@/types/activity"
 import { useEffect, useRef, useState } from "react"
-import { Activity, Session } from "../../types/activity"
 
 const DEFAULT_ACTIVITIES = ["Doing Nothing", "Working", "Studying"]
 
@@ -10,12 +10,16 @@ export function useTimeTracker() {
   const [activeActivity, setActiveActivity] = useState<string | null>(null)
   const [sessionHistory, setSessionHistory] = useState<Session[]>([])
   const [sessionStartTime, setSessionStartTime] = useState<Date | null>(null)
+  const [dailyTodos, setDailyTodos] = useState<DailyTodo[]>([])
+  const [todoCompletions, setTodoCompletions] = useState<DailyTodoCompletion[]>([])
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Load data from localStorage on mount
   useEffect(() => {
     const savedActivities = localStorage.getItem("activities")
     const savedHistory = localStorage.getItem("sessionHistory")
+    const savedDailyTodos = localStorage.getItem("dailyTodos")
+    const savedTodoCompletions = localStorage.getItem("todoCompletions")
 
     if (savedActivities) {
       setActivities(JSON.parse(savedActivities))
@@ -38,6 +42,14 @@ export function useTimeTracker() {
       }))
       setSessionHistory(historyWithDates)
     }
+
+    if (savedDailyTodos) {
+      setDailyTodos(JSON.parse(savedDailyTodos))
+    }
+
+    if (savedTodoCompletions) {
+      setTodoCompletions(JSON.parse(savedTodoCompletions))
+    }
   }, [])
 
   // Save activities to localStorage whenever they change
@@ -53,6 +65,14 @@ export function useTimeTracker() {
       localStorage.setItem("sessionHistory", JSON.stringify(sessionHistory))
     }
   }, [sessionHistory])
+
+  useEffect(() => {
+    localStorage.setItem("dailyTodos", JSON.stringify(dailyTodos))
+  }, [dailyTodos])
+
+  useEffect(() => {
+    localStorage.setItem("todoCompletions", JSON.stringify(todoCompletions))
+  }, [todoCompletions])
 
   // Timer effect
   useEffect(() => {
@@ -133,12 +153,50 @@ export function useTimeTracker() {
     setSessionStartTime(null)
   }
 
+  const addDailyTodo = (name: string) => {
+    if (dailyTodos.some((todo) => todo.name === name)) {
+      alert("Todo already exists!")
+      return
+    }
+
+    const newTodo: DailyTodo = {
+      id: `todo-${Date.now()}`,
+      name,
+    }
+
+    setDailyTodos((prev) => [...prev, newTodo])
+  }
+
+  const toggleTodoCompletion = (todoId: string, date: string) => {
+    setTodoCompletions((prev) => {
+      const existing = prev.find((c) => c.todoId === todoId && c.date === date)
+
+      if (existing) {
+        // Toggle existing completion
+        return prev.map((c) => (c.todoId === todoId && c.date === date ? { ...c, completed: !c.completed } : c))
+      } else {
+        // Add new completion
+        return [...prev, { todoId, date, completed: true }]
+      }
+    })
+  }
+
+  const getTodoCompletion = (todoId: string, date: string): boolean => {
+    const completion = todoCompletions.find((c) => c.todoId === todoId && c.date === date)
+    return completion?.completed ?? false
+  }
+
   return {
     activities,
     activeActivity,
     sessionHistory,
+    dailyTodos,
+    todoCompletions,
     addActivity,
     startActivity,
     stopActivity,
+    addDailyTodo,
+    toggleTodoCompletion,
+    getTodoCompletion,
   }
 }

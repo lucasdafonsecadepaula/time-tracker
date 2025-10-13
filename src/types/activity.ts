@@ -9,3 +9,14 @@ export interface Session {
   endTime: Date
   durationSeconds: number
 }
+
+export interface DailyTodo {
+  id: string
+  name: string
+}
+
+export interface DailyTodoCompletion {
+  todoId: string
+  date: string // YYYY-MM-DD format
+  completed: boolean
+}

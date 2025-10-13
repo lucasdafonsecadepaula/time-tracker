@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card"
 import { BarChart3 } from "lucide-react"
-import { Activity } from "../../types/activity"
+import { Activity } from "../types/activity"
 
 interface DailySummaryProps {
   activities: Activity[]
