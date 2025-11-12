@@ -1,72 +1,75 @@
-"use client"
-import { ActivityButtons } from "@/components/activity-buttons"
-import { AddActivity } from "@/components/add-activity"
-import { AddDailyTodo } from "@/components/add-daily-todo"
-import { Clock } from "@/components/clock"
-import { DailySummary } from "@/components/daily-summary"
-import { DailyTodos } from "@/components/daily-todos"
-import { SessionHistory } from "@/components/session-history"
-import { ThemeToggle } from "@/components/theme-toggle"
-import { useTimeTracker } from "@/hooks/use-time-tracker"
+'use client'
+import { useState, useEffect } from 'react'
+import { Moon, Sun } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Clock } from '@/components/Clock'
+import { TaskTracker } from '@/components/TaskTracker'
+import { ReminderManager } from '@/components/ReminderManager'
+import { HistoryView } from '@/components/HistoryView'
+import { getTodayTasks, getTheme, saveTheme } from '@/lib/storage'
 
-export default function TimeTrackerPage() {
-  const {
-    activities,
-    activeActivity,
-    sessionHistory,
-    dailyTodos,
-    todoCompletions,
-    addActivity,
-    startActivity,
-    stopActivity,
-    addDailyTodo,
-    toggleTodoCompletion,
-    getTodoCompletion,
-  } = useTimeTracker()
+const Index = () => {
+  const [theme, setTheme] = useState<'light' | 'dark'>(getTheme())
+  const [totalTimeToday, setTotalTimeToday] = useState(0)
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+    saveTheme(theme)
+  }, [theme])
+
+  useEffect(() => {
+    updateTotalTime()
+  }, [])
+
+  const updateTotalTime = () => {
+    const tasks = getTodayTasks()
+    const total = tasks.reduce((sum, task) => sum + task.timeSpent, 0)
+    setTotalTimeToday(total)
+  }
+
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-secondary/10">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="flex justify-end mb-4">
-          <ThemeToggle />
+    <div className="bg-background min-h-screen">
+      <Clock totalTimeToday={totalTimeToday} />
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6 flex items-center justify-between">
+          <h1 className="text-foreground text-3xl font-bold">FocusFlow</h1>
+          <Button variant="outline" size="icon" onClick={toggleTheme}>
+            {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+          </Button>
         </div>
 
-        <div className="space-y-8">
-          <div className="text-center space-y-3">
-            <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-              Time Tracker
-            </h1>
-            <p className="text-lg text-muted-foreground">Monitor how you spend your time throughout the day</p>
-          </div>
+        <Tabs defaultValue="tasks" className="w-full">
+          <TabsList className="mb-6 grid w-full grid-cols-3">
+            <TabsTrigger value="tasks">Tasks</TabsTrigger>
+            <TabsTrigger value="reminders">Reminders</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
+          </TabsList>
 
-          {/* Live Clock */}
-          <Clock />
+          <TabsContent value="tasks">
+            <TaskTracker onTimeUpdate={updateTotalTime} />
+          </TabsContent>
 
-          {/* Activity Buttons */}
-          <div className="space-y-4">
-            <h2 className="text-2xl font-semibold">Activities</h2>
-            <ActivityButtons activities={activities} activeActivity={activeActivity} onActivityClick={startActivity} />
-          </div>
+          <TabsContent value="reminders">
+            <ReminderManager />
+          </TabsContent>
 
-          {/* Add Custom Activity */}
-          <AddActivity onAddActivity={addActivity} />
-
-          <DailyTodos
-            todos={dailyTodos}
-            completions={todoCompletions}
-            onToggle={toggleTodoCompletion}
-            getTodoCompletion={getTodoCompletion}
-          />
-
-          <AddDailyTodo onAddTodo={addDailyTodo} />
-
-          {/* Daily Summary */}
-          <DailySummary activities={activities} />
-
-          {/* Session History */}
-          <SessionHistory history={sessionHistory} />
-        </div>
+          <TabsContent value="history">
+            <HistoryView />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
 }
+
+export default Index
