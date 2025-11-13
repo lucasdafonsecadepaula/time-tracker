@@ -58,23 +58,6 @@ export const TaskTracker = ({ onTimeUpdate }: { onTimeUpdate: () => void }) => {
     onTimeUpdate();
   }, [tasks, onTimeUpdate]);
 
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden && activeTask) {
-        const elapsed = Math.floor((Date.now() - activeTask.startTime) / 1000);
-        setTasks(prev => prev.map(task =>
-          task.id === activeTask.id
-            ? { ...task, timeSpent: task.timeSpent + elapsed }
-            : task
-        ));
-        setActiveTask({ ...activeTask, startTime: Date.now() });
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [activeTask]);
-
   const addTask = () => {
     if (!newTaskName.trim()) return;
 
@@ -90,14 +73,28 @@ export const TaskTracker = ({ onTimeUpdate }: { onTimeUpdate: () => void }) => {
   };
 
   const toggleTask = (taskId: string) => {
+    const now = Date.now();
+    let newTasks = [...tasks];
+
+    if (activeTask) {
+      const elapsed = Math.floor((now - activeTask.startTime) / 1000);
+      newTasks = newTasks.map(task =>
+        task.id === activeTask.id
+          ? { ...task, timeSpent: task.timeSpent + elapsed }
+          : task
+      );
+    }
+
     if (activeTask?.id === taskId) {
       setActiveTask(null);
       saveActiveTask(null);
     } else {
-      const newActiveTask = { id: taskId, startTime: Date.now() };
+      const newActiveTask = { id: taskId, startTime: now };
       setActiveTask(newActiveTask);
       saveActiveTask(newActiveTask);
     }
+    
+    setTasks(newTasks);
   };
 
   const deleteTask = (taskId: string) => {
